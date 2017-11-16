@@ -40,11 +40,6 @@ function Futures(fn) {
     fn(resolve, reject);
 }
 
-Futures.prototype.then = function () {
-};
-
-
-
 // Тест #1
 var foo = new Futures(function (resolve, reject) {
     resolve(123);
