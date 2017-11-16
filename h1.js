@@ -1,8 +1,43 @@
 // Реализовать класс Futures
+let PENDING = 0;
+let FULFILLED = 1;
+let REJECTED = 2;
 
-function Futures(executor) {
+function Futures(fn) {
+    let state = PENDING;
+    let callbackResolve = null;
+    let callbackReject = null;
 
-    return new Promise(executor);
+    this.then = function(res, rej) {
+        callbackResolve = res;
+        callbackReject = rej;
+    };
+
+    function resolve(value) {
+        if(state !== PENDING) {
+            return;
+        }
+
+        setTimeout(function() {
+            callbackResolve(value);
+        }, 0);
+
+        state = FULFILLED;
+    }
+
+    function reject(value) {
+        if(state !== PENDING) {
+            return;
+        }
+
+        setTimeout(function() {
+            callbackReject(value);
+        }, 0);
+
+        state = REJECTED;
+    }
+
+    fn(resolve, reject);
 }
 
 Futures.prototype.then = function () {
