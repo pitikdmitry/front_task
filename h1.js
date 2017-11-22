@@ -19,22 +19,29 @@ function Futures(fn) {
         }
 
         setTimeout(function() {
-            callbackResolve(value);
-        }, 0);
+            try{
+                callbackResolve(value);
+                state = FULFILLED;
+            } catch(err) {
+                return resolve(value);
+            }
 
-        state = FULFILLED;
+        }, 10);
+
     }
 
     function reject(value) {
         if(state !== PENDING) {
             return;
         }
-
         setTimeout(function() {
-            callbackReject(value);
-        }, 0);
-
-        state = REJECTED;
+            try{
+                callbackReject(value);
+                state = REJECTED;
+            } catch(err) {
+                return reject(value);
+            }
+        }, 10);
     }
 
     fn(resolve, reject);
