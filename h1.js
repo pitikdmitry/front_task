@@ -5,12 +5,16 @@ let REJECTED = 2;
 
 function Futures(fn) {
     let state = PENDING;
-    let callbackResolve = null;
-    let callbackReject = null;
+    let callbacksResolve = [];
+    let callbacksReject = [];
 
     this.then = function(res, rej) {
-        callbackResolve = res;
-        callbackReject = rej;
+        if(res !== undefined) {
+            callbacksResolve.push(res);
+        }
+        if(rej !== undefined) {
+            callbacksReject.push(rej);
+        }
     };
 
     function resolve(value) {
@@ -19,10 +23,12 @@ function Futures(fn) {
         }
 
         setTimeout(function() {
-            try{
-                callbackResolve(value);
-                state = FULFILLED;
-            } catch(err) {
+            if(callbacksResolve !== undefined && callbacksResolve.length > 0) {
+                for(let i = 0; i < callbacksResolve.length; ++i) {
+                    callbacksResolve[i](value);
+                    state = FULFILLED;
+                }
+            } else {
                 return resolve(value);
             }
 
@@ -35,12 +41,15 @@ function Futures(fn) {
             return;
         }
         setTimeout(function() {
-            try{
-                callbackReject(value);
-                state = REJECTED;
-            } catch(err) {
+            if(callbacksReject !== undefined && callbacksReject.length > 0) {
+                for(let i = 0; i < callbacksReject.length; ++i) {
+                    callbacksReject[i](value);
+                    state = REJECTED;
+                }
+            } else {
                 return reject(value);
             }
+
         }, 10);
     }
 
